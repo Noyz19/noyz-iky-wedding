@@ -11,28 +11,36 @@
       font-family: 'Open Sans', sans-serif;
       background-color: #fff0f5;
       color: #333;
+      overflow-x: hidden;
     }
     header {
       background: url('https://source.unsplash.com/1600x900/?wedding,rustic') center/cover no-repeat;
       padding: 100px 20px;
       text-align: center;
       color: #fff;
+      position: relative;
     }
     header h1 {
       font-family: 'Playfair Display', serif;
       font-size: 3rem;
       margin: 0;
+      animation: fadeIn 2s ease-in-out;
     }
     header p {
       font-size: 1.2rem;
       margin-top: 10px;
+      animation: fadeIn 3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     section {
       padding: 40px 20px;
       max-width: 800px;
       margin: auto;
     }
-    .rsvp, .gallery {
+    .rsvp, .gallery, .countdown {
       margin-top: 40px;
     }
     .gallery img {
@@ -63,9 +71,26 @@
       background: #f8d9e8;
       color: #555;
     }
+    #falling-leaves {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
+  <!-- Music Background -->
+  <audio autoplay loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Falling Leaves Effect -->
+  <canvas id="falling-leaves"></canvas>
+
   <header>
     <h1>Ratno & Rizky Oktariani</h1>
     <p>11 Juni 2027 • Park Hyatt Hotel</p>
@@ -76,12 +101,17 @@
     <p>Dengan penuh cinta dan kebahagiaan, kami mengundang Anda untuk menjadi bagian dari hari istimewa kami.</p>
   </section>
 
+  <section class="countdown">
+    <h2>Hitung Mundur ke Hari Bahagia</h2>
+    <p id="countdown" style="font-size: 1.5rem; font-weight: bold;"></p>
+  </section>
+
   <section class="rsvp">
     <h2>RSVP</h2>
-    <form action="https://formspree.io/f/yourformid" method="POST">
-      <input type="text" name="nama" placeholder="Nama Anda" required>
-      <input type="email" name="email" placeholder="Email" required>
-      <textarea name="pesan" placeholder="Ucapan atau doa" rows="4"></textarea>
+    <form action="https://docs.google.com/forms/d/e/your_google_form_id/formResponse" method="POST" target="_blank">
+      <input type="text" name="entry.1234567890" placeholder="Nama Anda" required>
+      <input type="email" name="entry.9876543210" placeholder="Email" required>
+      <textarea name="entry.1928374650" placeholder="Ucapan atau doa" rows="4"></textarea>
       <button type="submit">Kirim</button>
     </form>
   </section>
@@ -98,5 +128,63 @@
   <footer>
     <p>Terima kasih atas doa dan restunya</p>
   </footer>
+
+  <!-- Countdown Script -->
+  <script>
+    const targetDate = new Date("2027-06-11T00:00:00").getTime();
+    const countdown = document.getElementById("countdown");
+    setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      countdown.innerHTML = `${days} Hari ${hours} Jam ${minutes} Menit ${seconds} Detik`;
+    }, 1000);
+  </script>
+
+  <!-- Falling Leaves Script -->
+  <script>
+    const canvas = document.getElementById('falling-leaves');
+    const ctx = canvas.getContext('2d');
+    let leaves = [];
+    const leafCount = 30;
+
+    function initLeaves() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      leaves = [];
+      for (let i = 0; i < leafCount; i++) {
+        leaves.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 20 + 10,
+          speed: Math.random() * 2 + 1,
+          drift: Math.random() * 2 - 1
+        });
+      }
+    }
+
+    function drawLeaves() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(233,150,122,0.7)';
+      for (let leaf of leaves) {
+        ctx.beginPath();
+        ctx.ellipse(leaf.x, leaf.y, leaf.size, leaf.size / 2, 0, 0, 2 * Math.PI);
+        ctx.fill();
+        leaf.y += leaf.speed;
+        leaf.x += leaf.drift;
+        if (leaf.y > canvas.height) {
+          leaf.y = -leaf.size;
+          leaf.x = Math.random() * canvas.width;
+        }
+      }
+    }
+
+    initLeaves();
+    setInterval(drawLeaves, 50);
+    window.addEventListener('resize', initLeaves);
+  </script>
 </body>
 </html>
